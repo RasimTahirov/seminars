@@ -7,4 +7,4 @@ export interface ISeminar {
   photo: string;
 }
 
-export type ModalType = "view" | "delete" | "edit" | null;
+export type ModalType = 'view' | 'delete' | 'edit' | null;
