@@ -3,7 +3,9 @@
 @theme {
   --color-body: #e3e3d8;
   --color-card: #f4f4f4;
+  --color-modal: #f5f6fa;
   --shadow-card: 0px 0px 15px 5px rgba(34, 60, 80, 0.2);
+  --shadow-modal: 0px 0px 20px 3px rgba(34, 60, 80, 0.2);
 }
 
 @layer base {
@@ -11,11 +13,19 @@
   body {
     @apply min-h-screen bg-body;
   }
+
+  input:focus {
+    @apply outline-none
+  }
 }
 
 @layer components {
   .content {
     @apply transition-opacity ease-linear duration-200;
+  }
+
+  .input {
+    @apply bg-white shadow-modal px-5 py-2.5 w-full rounded-xl
   }
 
   .edit {

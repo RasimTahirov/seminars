@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { deleteSeminar, getAllSeminars } from "../api/api"
+import { deleteSeminar, editSeminar, getAllSeminars } from "../api/api"
 import { ISeminar, ModalType } from "../types/type"
 import { Pencil, Trash2 } from "lucide-react"
 import Modal from "./Modal"
@@ -7,6 +7,13 @@ import Modal from "./Modal"
 const Seminar = () => {
   const [seminars, setSeminars] = useState<ISeminar[]>([])
   const [modalState, setModalState] = useState<{ type: ModalType; id: string | null }>({ type: null, id: null });
+  const [formDatas, setFormDatas] = useState({
+    title: '',
+    description: '',
+    photo: '',
+    date: '',
+    time: ''
+  })
 
   const openModal = (id: string, type: ModalType) => setModalState({ type, id })
   const closeModal = () => setModalState({ type: null, id: null })
@@ -14,6 +21,31 @@ const Seminar = () => {
   const onDelete = (id: string) => {
     deleteSeminar(id)
     closeModal()
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormDatas((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const onSumbit = (e: React.FormEvent, id: string) => {
+    e.preventDefault()
+    const currentSeminar = seminars.find((seminar) => seminar.id === id)
+    if (!currentSeminar) return
+
+    const updateSeminar = {
+      id: currentSeminar.id,
+      title: formDatas.title || currentSeminar.title,
+      description: formDatas.description || currentSeminar.description,
+      date: formDatas.date || currentSeminar.date,
+      time: formDatas.time || currentSeminar.time,
+      photo: formDatas.photo || currentSeminar.photo,
+    }
+
+    editSeminar(id, updateSeminar)
   }
 
   useEffect(() => {
@@ -43,7 +75,7 @@ const Seminar = () => {
                 <h2 className="title">{seminar.title}</h2>
                 <p>{seminar.description}</p>
               </div>
-              <button className="edit" onClick={() => console.log('Изменить')}>
+              <button className="edit" onClick={() => openModal(seminar.id, 'edit')}>
                 <Pencil />
                 <div>Изменить</div>
               </button>
@@ -76,6 +108,44 @@ const Seminar = () => {
                   <button className="hover:opacity-60 cursor-pointer transition-opacity duration-100 ease-linear" onClick={() => onDelete(seminar.id)}>Удалить</button>
                   <button className="hover:opacity-60 cursor-pointer transition-opacity duration-100 ease-linear" onClick={closeModal}>Отмена</button>
                 </div>
+              </div>
+            </Modal>
+          )}
+          {modalState.type === 'edit' && modalState.id === seminar.id && (
+            <Modal isOpen={true} onClose={closeModal}>
+              <div>
+                <h3 className="flex justify-center text-2xl font-medium mb-5">Изменение семинара</h3>
+                <form className="grid gap-y-2.5 w-[70%] mx-auto" onSubmit={(e) => onSumbit(e, seminar.id)}>
+                  <input
+                    className="input"
+                    placeholder="Название семинара"
+                    type="text"
+                    name="title"
+                    value={formDatas.title}
+                    onChange={handleChange}
+                  />
+                  <input
+                    className="input"
+                    type="date" name="date"
+                    value={formDatas.date}
+                    onChange={handleChange} />
+                  <input
+                    className="input"
+                    type="time" name="time"
+                    value={formDatas.time}
+                    onChange={handleChange} />
+                  <input
+                    className="input"
+                    type="url" name="photo"
+                    value={formDatas.photo}
+                    onChange={handleChange} />
+                  <input
+                    className="input"
+                    type="text" name="description"
+                    value={formDatas.description}
+                    onChange={handleChange} />
+                  <button type="submit">Изменить</button>
+                </form>
               </div>
             </Modal>
           )}
