@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react"
-import { getAllSeminars } from "../api/api"
-import { ISeminar } from "../types/type"
+import { deleteSeminar, getAllSeminars } from "../api/api"
+import { ISeminar, ModalType } from "../types/type"
 import { Pencil, Trash2 } from "lucide-react"
 import Modal from "./Modal"
 
 const Seminar = () => {
   const [seminars, setSeminars] = useState<ISeminar[]>([])
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [isModalOpenId, setModalOpenId] = useState<string | null>(null);
+  const [modalState, setModalState] = useState<{ type: ModalType; id: string | null }>({ type: null, id: null });
 
-  const openModal = (id: string) => {
-    setModalOpen(true)
-    setModalOpenId(id)
-    console.log(id)
+  const openModal = (id: string, type: ModalType) => setModalState({ type, id })
+  const closeModal = () => setModalState({ type: null, id: null })
+
+  const onDelete = (id: string) => {
+    deleteSeminar(id)
+    closeModal()
   }
-  const closeModal = () => setModalOpen(false);
 
   useEffect(() => {
     const fetchSeminars = async () => {
@@ -23,7 +23,6 @@ const Seminar = () => {
         setSeminars(data)
       }
     }
-
     fetchSeminars()
   }, [])
 
@@ -32,7 +31,7 @@ const Seminar = () => {
       {seminars.map((seminar) => (
         <div key={seminar.id}>
           <div className="bg-card shadow-card cursor-pointer max-w-[25rem] rounded-xl overflow-hidden transform hover:scale-105 transition-transform ease-linear duration-200 card">
-            <div className="relative" onClick={() => openModal(seminar.id)}>
+            <div className="relative" onClick={() => openModal(seminar.id, 'view')}>
               <img className="object-cover" src={seminar.photo} alt={seminar.title} />
               <div className="bg-card absolute flex gap-1 font-medium top-0 px-2.5 py-1.5 rounded-br-xl">
                 <div>{seminar.date}</div>
@@ -48,14 +47,14 @@ const Seminar = () => {
                 <Pencil />
                 <div>Изменить</div>
               </button>
-              <button className="delete" onClick={() => console.log('Удалить')}>
+              <button className="delete" onClick={() => openModal(seminar.id, 'delete')}>
                 <Trash2 />
                 <div>Удалить</div>
               </button>
             </div>
           </div>
-          {isModalOpenId === seminar.id && (
-            <Modal isOpen={isModalOpen} onClose={closeModal}>
+          {modalState.type === 'view' && modalState.id === seminar.id && (
+            <Modal isOpen={true} onClose={closeModal}>
               <div className="mb-2.5">
                 <img className="object-cover rounded-xl" src={seminar.photo} alt={seminar.time} />
               </div>
@@ -69,6 +68,17 @@ const Seminar = () => {
               <p>{seminar.description}</p>
             </Modal>
           )}
+          {modalState.type === 'delete' && modalState.id === seminar.id && (
+            <Modal isOpen={true} onClose={closeModal}>
+              <div className="flex flex-col justify-self-center">
+                <div className="title mb-2.5">Хотите удалить семинар?</div>
+                <div className="flex justify-center gap-2.5 text-lg">
+                  <button className="hover:opacity-60 cursor-pointer transition-opacity duration-100 ease-linear" onClick={() => onDelete(seminar.id)}>Удалить</button>
+                  <button className="hover:opacity-60 cursor-pointer transition-opacity duration-100 ease-linear" onClick={closeModal}>Отмена</button>
+                </div>
+              </div>
+            </Modal>
+          )}
         </div>
       ))}
     </div>
@@ -76,3 +86,5 @@ const Seminar = () => {
 }
 
 export default Seminar
+
+

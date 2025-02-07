@@ -6,3 +6,5 @@ export interface ISeminar {
   time: string;
   photo: string;
 }
+
+export type ModalType = "view" | "delete" | "edit" | null;

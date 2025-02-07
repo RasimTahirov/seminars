@@ -8,3 +8,12 @@ export const getAllSeminars = async () => {
     console.log("Ошибка в получении данных", error);
   }
 };
+
+export const deleteSeminar = async (id: string) => {
+  try {
+    const res = await axios.delete(`http://localhost:3000/seminars/${id}`);
+    return res;
+  } catch (error) {
+    console.error("Ошибка при удалении семинара", error);
+  }
+};
