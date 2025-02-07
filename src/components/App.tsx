@@ -1,6 +1,8 @@
+import Seminar from "./Seminar"
+
 const App = () => {
   return (
-    <div>App</div>
+    <Seminar />
   )
 }
 
